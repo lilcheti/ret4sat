@@ -36,31 +36,36 @@ class IDPrinter(AsyncStream):
             real_status = api.get_status(status.in_reply_to_status_id_str)
             if real_status.retweeted:
               try:
-                if s[1]=="unretweet":
-                  print("unretweet")
-                  amount = Database().getamount(status.in_reply_to_status_id_str)*2
-                  print(amount)
-                  if amount > 4000000:
-                    amount = 4000000
-                  print("replied to",status.in_reply_to_status_id_str)
-                  invoice = requests.post("https://legend.lnbits.com/api/v1/payments", data = '{"out": false,"amount":'+str(amount)+'}', headers = {"X-Api-Key": api_key,"Content-type": "application/json"})
-                  print(invoice.text)
+                if len(s)>1:
+                  if s[1]=="unretweet":
+                    print("unretweet")
+                    amount = Database().getamount(status.in_reply_to_status_id_str)*2
+                    print(amount)
+                    if amount > 4000000:
+                      amount = 4000000
+                    print("replied to",status.in_reply_to_status_id_str)
+                    invoice = requests.post("https://legend.lnbits.com/api/v1/payments", data = '{"out": false,"amount":'+str(amount)+'}', headers = {"X-Api-Key": api_key,"Content-type": "application/json"})
+                    print(invoice.text)
+                    auth = tweepy.OAuth1UserHandler(consumer_key, consumer_secret, access_token, access_token_secret)
+                    api = tweepy.API(auth)
+                    kk = invoice.json()
+                    img = qrcode.make(kk["payment_request"])
+                    type(img)  # qrcode.image.pil.PilImage
+                    img.save(str(id)+".png")
+                    api.update_status_with_media("Pay "+str(amount)+"sat with lightning to unretweet this tweet!",filename=str(id)+".png",in_reply_to_status_id=id,auto_populate_reply_metadata=True)
+                    os.remove(str(id)+".png")
+                    Database().update_user_data(status.in_reply_to_status_id_str,kk["payment_hash"],kk["payment_request"],kk["checking_id"],amount,0,time.time(),1)
+                  else:
+                    print(int(s[1]))
+                    auth = tweepy.OAuth1UserHandler(consumer_key, consumer_secret, access_token, access_token_secret)
+                    api = tweepy.API(auth)
+                    api.update_status("This tweet has already been retweeted!",in_reply_to_status_id=id,auto_populate_reply_metadata=True)
+                else:
                   auth = tweepy.OAuth1UserHandler(consumer_key, consumer_secret, access_token, access_token_secret)
                   api = tweepy.API(auth)
-                  kk = invoice.json()
-                  img = qrcode.make(kk["payment_request"])
-                  type(img)  # qrcode.image.pil.PilImage
-                  img.save(str(id)+".png")
-                  api.update_status_with_media("Pay "+str(amount)+"sat with lightning to unretweet this tweet!",filename=str(id)+".png",in_reply_to_status_id=id,auto_populate_reply_metadata=True)
-                  os.remove(str(id)+".png")
-                  Database().update_user_data(status.in_reply_to_status_id_str,kk["payment_hash"],kk["payment_request"],kk["checking_id"],amount,0,time.time(),1)
-
-                else:
-                  raise Exception('unretweet')
+                  api.update_status("This tweet has already been retweeted!",in_reply_to_status_id=id,auto_populate_reply_metadata=True)
               except:
-                auth = tweepy.OAuth1UserHandler(consumer_key, consumer_secret, access_token, access_token_secret)
-                api = tweepy.API(auth)
-                api.update_status("This tweet has already been retweeted!",in_reply_to_status_id=id,auto_populate_reply_metadata=True)
+                print("dafaq")
             elif not Database().is_user_saved(status.in_reply_to_status_id_str):
                   if len(s)>1:
                     if s[1]=="unretweet":
