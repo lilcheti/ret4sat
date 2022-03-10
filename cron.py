@@ -1,4 +1,3 @@
-from websockets import Data
 from database import Database
 import requests,config,tweepy,time
 
