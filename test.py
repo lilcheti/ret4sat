@@ -1,6 +1,5 @@
 import tweepy,asyncio,json,requests,qrcode,os,time,config
 from tweepy.asynchronous import AsyncStream
-from websockets import Data 
 from database import Database
 
 consumer_key = config.consumer_key
