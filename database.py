@@ -149,7 +149,11 @@ class Database(object):
     def set_ispaid(self, ispaid, rowid):
         self.cursor.execute("UPDATE users SET ispaid = ? WHERE rowid = ?;", [ispaid, str(rowid)])
         self.connection.commit()
-    
+
+    def set_unretweet(self, unretweet, rowid):
+        self.cursor.execute("UPDATE users SET unretweet = ? WHERE rowid = ?;", [unretweet, str(rowid)])
+        self.connection.commit()
+
     def update_user_data(self, tweet_id, payment_hash, payment_request, checking_id, amount, ispaid, date, unretweet):
         self.cursor.execute("UPDATE users SET payment_hash=?, payment_request=?, checking_id=?, amount=?, ispaid=?, date=?, unretweet=? WHERE tweet_id=?;", [payment_hash, payment_request, checking_id, amount, ispaid, date, unretweet, str(tweet_id)])
         self.connection.commit()

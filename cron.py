@@ -23,8 +23,12 @@ while True:
                         api.retweet(user[1])
                         Database().set_ispaid(1, user[0])
                         print("retweeted")
-                if ((time.time()-user[7])>1200) and (user[8]==0):
-                    Database().delete_row(user[1])
+                if ((time.time()-user[7])>1200):
+                    if (user[8]==0):
+                        Database().delete_row(user[1])
+                    else:
+                        Database().set_ispaid(1,user[1])
+                        Database().set_unretweet(0,user[1])
     except Exception as e:
         print(e)
     
